@@ -1,0 +1,51 @@
+Email Cron Job Sending
+
+Time - Every 8:45 PM UTC+6:30
+To - CEO of Mudon Maung Maung
+From - yunyun.mdmm@gmail.com ( Yun Yun - Developer )
+
+To run that cron job : we need to add postfix which is a smtp mail service in linux system
+
+Installation - sudo apt-get update
+	     - sudo apt-get install postfix
+			- (choose) Internet Site
+Get a google app password - for postfix authentication 
+	If we use app password , we don't need to provide our real google account password
+Configure SASL with our Gmail Credentials 
+	- Create a file : nano /etc/postfix/sasl/sasl_passwd
+		- [smtp.gmail.com]:587 our@gmail.com:googleAppPassword ( put line in that created file)
+	- Create a hash database file 
+		- sudo postmap /etc/postfix/sasl/sasl_passwd
+	- Change Owner and Permisssion of that file
+		- sudo chown root:root /etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd.db
+		- sudo chmod 0600 /etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd.db
+Configure postfix with gmail servers to send mail:
+	- relayhost = [smtp.gmail.com]:587
+Enable SASL authentication in that file:
+	- smtp_sasl_auth_enable = yes
+	- smtp_sasl_security_options = noanonymous
+	- smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_passwd
+	- smtp_tls_security_level = encrypt
+	- smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+Restart postfix to apply recent changes : sudo systemctl restart postfix
+
+To test sending :
+	- Type command : sendmail recipient@gmail.com
+	- "Subject : test "
+	- You can add anything for body and if you finish move to next line and press (Ctrl + D ) to exit
+
+################### Postfix section is finished ###############
+
+For crontabs 
+
+# Type command
+crontab -e
+
+# then
+48 15 * * * /usr/bin/python /path/to/the/record_creator.py
+49 15 * * * /path/to/the/email_sender.sh
+
+# Note that you can edit time and day as you wish
+
+
+# https://www.youtube.com/watch?v=uNss377DK88
